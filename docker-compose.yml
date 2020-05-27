@@ -1,0 +1,55 @@
+#
+# Docker Compose file
+# PHP, Apache (web), MySQL (db), persistent storage (db-data)
+#
+# USE THIS FOR LOCAL DEVELOPMENT ONLY! NOT FOR PRODUCTION USE!
+#
+# @author Oliver Erdmann, <o.erdmann@finaldream.de>
+# @since 27.04.2016
+#
+
+web:
+  build: .
+  #command: php -S 0.0.0.0:80 -t /var/www/html/public
+  command: apache2-foreground
+#  restart: unless-stopped
+  ports:
+    - "80:80"
+
+ 
+    - "23:22"
+  tty: true
+  links:
+    - db
+  volumes:
+    - .:/var/www/html/
+    - ./docker/conf/php.ini:/usr/local/etc/php/php.ini
+    - ./docker/conf/apache2.conf:/etc/apache2/apache2.conf
+  environment:
+    SERVER_NAME: local.fernbus24.de
+    DB_NAME: database
+    DB_USER: db_user
+    DB_PASSWORD: db_user
+    DB_HOST: db:3306
+    DB_CHARSET: utf8
+    DB_COLLATE: ''
+    APPLICATION_ENV: local
+
+db-data:
+  container_name: db-data
+  image: mysql
+  tty: true
+  entrypoint: /bin/bash
+
+db:
+  image: mysql
+  restart: unless-stopped
+  volumes_from:
+    - db-data
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_DATABASE: database
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_USER: db_user
+    MYSQL_PASSWORD: db_user

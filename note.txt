@@ -1,0 +1,12 @@
+>> Dashboard -> http://autor.testertoday.com:9999/#/
+	1. Biểu đồ hiển thị time chưa đúng theo lịch chọn
+	2. chọn lịch nhưng k0 thấy load dữ liệu vào biểu đồ
+>> Testcase -> http://autor.testertoday.com:9999/#/reportDetails?id=4a298692-5629-4dac-ba2c-ec77bb626ec4
+	1. Update step rồi thì phải refresh mới update đc tiếp
+	2. Khi update done thì status testcase đc update còn status step k0 auto load mà phảo refresh mới thấy thay đổi
+>> Login -> http://autor.testertoday.com:9999/#/
+	1. Login xong k0 tự autoload vào Dashboard mà phải F5 load lại mới vào đc
+>> Head menu
+	1. chưa cho chọn Project
+>> Search -> http://autor.testertoday.com:9999/#/search
+	1. Thực hiện search testcase -> ra danh sách các testcase thỏa mãn tiêu chí search -> các testcase này thiếu 1 btn để ấn vào hiển thị ra step của testcase đó

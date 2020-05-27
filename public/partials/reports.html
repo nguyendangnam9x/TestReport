@@ -1,0 +1,186 @@
+<div class='container main reports-view {{ padded }}' ng-controller="ReportController">
+    <div class="row">
+        <div class='col-md-12'>
+            <h1>Reports</h1>
+        </div>
+
+        <div class='col-md-2'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
+                    Total Tests
+                </div>
+                <div class='segment-lead text-right'>
+                    <strong>{{ res.aggregates.parentCount }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class='col-md-2'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
+                    Tests Passed
+                </div>
+                <div class='segment-lead text-right'>
+                    <strong>{{ res.aggregates.parentPassed }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class='col-md-2'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
+                    Tests Failed
+                </div>
+                <div class='segment-lead text-right'>
+                    <strong>{{ res.aggregates.parentFailed }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class='col-md-2'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
+                    Total Steps
+                </div>
+                <div class='segment-lead text-right'>
+                    <strong>{{ res.aggregates.childCount }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class='col-md-2'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
+                    Steps Passed
+                </div>
+                <div class='segment-lead text-right'>
+                    <strong>{{ res.aggregates.childPassed }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class='col-md-2'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
+                    Steps Failed
+                </div>
+                <div class='segment-lead text-right'>
+                    <strong>{{ res.aggregates.childFailed + res.aggregates.childErrored }}</strong>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="row" ng-if="res.reports.length">
+            <div class='col-md-12'>
+                <div class='panel panel-default padded'>
+                    <div class='panel-heading float-left'>
+                        Reports
+                    </div>
+                    
+                    <label class='label label-default float-right'>
+                       {{ res.reports.length }} Reports
+                    </label>
+
+                    <div class='panel-body'>
+                        <table class='table table-striped table-condensed table-hover'>
+                            <thead>
+                                <th>#</th>
+                                <th>File</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Tests</th>
+                                <th>Tests Distribution</th>
+                                <th>Steps</th>
+                                <th>Steps Distribution</th>
+                                <!-- <th ng-if='hasBDD'>GrandChild</th> -->
+                                <th ng-if='hasBDD'>Actions</th>
+                                <th ng-controller="AdminController" ng-if="isAdmin"></th>
+                            </thead>
+                            <tfoot>
+                                <td colspan="8">
+                                    <div class="col-md-8" ng-if="res.reports.length>10">
+                                        <button class="btn btn-primary" ng-disabled="currentPage == 0" ng-click="prevPage()">
+                                            Previous
+                                        </button>
+                                        <button class="btn btn-primary" ng-disabled="currentPage >= (getNumberOfPages(res.reports.length)-1)" ng-click="nextPage(getNumberOfPages(res.reports.length))">
+                                            Next
+                                        </button>
+                                        <span class="label">showing page {{ currentPage + 1 }} of {{ getNumberOfPages(res.reports.length) }}</span>
+                                    </div>
+                                </td>
+                            </tfoot>
+                            <tbody>
+                                <tr ng-repeat="report in res.reports | startFrom:currentPage*pageSize | limitTo:pageSize">
+                                    <td>{{ $index + 1 }}</td>
+                                    <td><a href='#/reportDetails?id={{ report.id }}'>{{ report.fileName }}</a></td>
+                                    <td><span class='ui label'><i class='fa fa-calendar icon'></i>{{ report.startTime | date:'MM-dd-yyyy HH:mm:ss' }}</span></td>
+                                    <td><span class='ui label'><i class='fa fa-calendar icon'></i>{{ report.endTime | date:'MM-dd-yyyy HH:mm:ss' }}</span></td>
+                                    <td>{{ report.parentLength }}</td>
+                                    <td class='progress-col'>
+                                        <div class='progress'>
+                                            <div class='progress-bar progress-bar-success' style='display: {{ report.passParentLength>0 ? "block" : "none" }}; width: {{ (report.passParentLength / (report.parentLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.passParentLength }}</span>
+                                            </div>
+                                            <div class='progress-bar progress-bar-info progress-bar-striped' style='display: {{ (report.parentLength-report.passParentLength-report.failParentLength-report.errorParentLength)>0 ? "block" : "none" }}; width: {{ ((report.fatalParentLength + report.warningParentLength + report.skipParentLength + report.unknownParentLength) / (report.parentLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.fatalParentLength + report.warningParentLength + report.skipParentLength + report.unknownParentLength }}</span>
+                                            </div>
+                                            <div class='progress-bar progress-bar-danger' style='display: {{ (report.failParentLength + report.errorParentLength)>0 ? "block" : "none" }}; width: {{ ((report.failParentLength + report.errorParentLength) / (report.parentLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.failParentLength + report.errorParentLength }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ report.childLength }}</td>
+                                    <td class='progress-col'>
+                                        <div class='progress'>
+                                            <div class='progress-bar progress-bar-success' style='display: {{ report.passChildLength>0 ? "block" : "none" }}; width: {{ (report.passChildLength / (report.childLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.passChildLength }}</span>
+                                            </div>
+                                            <!-- <div class='progress-bar progress-bar-info progress-bar-striped' style='display: {{ (report.childLength-report.passChildLength-report.failChildLength-report.errorChildLength) >0 ? "block" : "none" }}; width: {{ ((report.fatalChildLength + report.warningChildLength + report.skipChildLength + report.unknownChildLength + report.infoChildLength) / (report.childLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.fatalChildLength + report.warningChildLength + report.skipChildLength + report.unknownChildLength + report.infoChildLength }}</span>
+                                            </div> -->
+                                            <div class='progress-bar progress-bar-info progress-bar-striped' style='display: {{ (report.childLength-report.passChildLength-report.failChildLength-report.errorChildLength) >0 ? "block" : "none" }}; width: {{ ((report.childLength-report.passChildLength-report.failChildLength-report.errorChildLength) / (report.childLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.fatalChildLength + report.warningChildLength + report.skipChildLength + report.unknownChildLength + report.infoChildLength }}</span>
+                                            </div>
+                                            <div class='progress-bar progress-bar-danger' style='display: {{ (report.failChildLength + report.errorChildLength) >0 ? "block" : "none" }}; width: {{ ((report.failChildLength + report.errorChildLength) / (report.childLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.failChildLength + report.errorChildLength }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <!-- aaaaaaaaaaaaaaaa<td ng-if='hasBDD'>{{ report.grandChildLength }}</td> -->
+                                    <td class='progress-col' ng-if='hasBDD && report.grandChildLength > 0'>
+                                        <div class='progress'>
+                                            <div class='progress-bar progress-bar-success' style='width: {{ (report.passGrandChildLength / (report.grandChildLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.passGrandChildLength }}</span>
+                                            </div>
+                                            <div class='progress-bar progress-bar-info progress-bar-striped' style='width: {{ ((report.errorGrandChildLength + report.warningGrandChildLength + report.skipGrandChildLength + report.unknownGrandChildLength + report.infoGrandChildLength) / (report.grandChildLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.errorGrandChildLength + report.warningGrandChildLength + report.skipGrandChildLength + report.unknownGrandChildLength + report.infoGrandChildLength }}</span>
+                                            </div>
+                                            <div class='progress-bar progress-bar-danger' style='width: {{ ((report.failGrandChildLength + report.fatalGrandChildLength) / (report.grandChildLength)) * 100 }}%'>
+                                                <span class='sr-only'>{{ report.failGrandChildLength + report.fatalGrandChildLength }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td ng-if='hasBDD && report.grandChildLength === 0' style='text-align:center;'>N/A</td>
+                                    <td><a href='#/reportDetails?id={{ report.id }}'><i class='fa fa-external-link'></i></a></td>
+                                    <td ng-controller="AdminController" ng-if="isAdmin">
+                                        <div class="btn-group" uib-dropdown is-open="status.isopen">
+                                            <button id="single-button" type="button" class="btn btn-default btn-xs" uib-dropdown-toggle ng-disabled="disabled">
+                                                <i class="fa fa-user"></i> &nbsp; <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+                                                <li role="menuitem" class="hidden"><a href="" ng-click="archiveReport(res.reports[$index].id)">Archive</a></li>
+                                                <li role="menuitem"><a href="" ng-click="destroyReport(res.reports[$index].id)">Delete</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>        
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,251 @@
+<div class='container main dashboard-view {{ padded }}' ng-controller="ReportController">
+    <div class="row">
+        <div class='col-md-4'>
+            <h1  ng-repeat="project in res.projects" ng-if="project.name === res.currentProject">{{ project.name }} - Dashboard</h1>
+            <h1 ng-if="res.currentProject == ''">AIO Dashboard</h1>
+        </div>
+        <div class='col-md-3'>
+            <div class="input-group" style="margin-top: 20px;">
+                <input type="text" placeholder="Start date: Y/m/d" class="form-control" uib-datepicker-popup="{{ dateFormat }}" ng-model="startDate" is-open="startDatePicker.opened" close-text="Close" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="openStartDate()"><i class="fa fa-calendar"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class='col-md-3'>
+            <div class="input-group" style="margin-top: 20px;">
+                <input type="text" placeholder="End date: MM/dd/yyyy" class="form-control" uib-datepicker-popup="{{ dateFormat }}" ng-model="endDate" is-open="endDatePicker.opened" close-text="Close" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="openEndDate()"><i class="fa fa-calendar"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class='col-md-2'>
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-default" ng-click="Reset()">Reset</button>
+                <button style="width: 100px" type="button" class="btn btn-primary" ng-click="Aggregates()">Search</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" ng-if="res.reports.length === 0">
+        <div class="col-md-12">
+            No tests.
+        </div>
+    </div>
+    
+    <div class="row" ng-if="res.reports.length">
+        <div class='col-md-6' ng-controller="TestTrendsController">
+            <div class="panel panel-default padded">
+                <div class='panel-heading'>
+                    Report Trends By Status - Aggregates()Test
+                    <span class='pull-right pointer' ng-controller='DataPointsController' ng-click='open()' href='#!'>
+                        <i class='fa fa-gear'></i>
+                    </span>
+                </div>
+                
+                <div class='panel-body'>
+                    <canvas id='test-trends' class='chart chart-line' chart-data="data" chart-labels="labels" chart-legend="true" chart-series="series" chart-options="options" chart-colours="colors"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class='col-md-6' ng-controller="LogTrendsController">
+            <div class='panel panel-default padded'>
+                <div class='panel-heading'>
+                    Report Trends By Status - Step 
+                    <span class='pull-right pointer' ng-controller='DataPointsController' ng-click='open()' href='#!'>
+                        <i class='fa fa-gear'></i>
+                    </span>
+                </div>
+                <div class='panel-body'>
+                    <canvas id='log-trends' class='chart chart-line' chart-data="data" chart-labels="labels" chart-legend="true" chart-series="series" chart-options="options" chart-colours="colors"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+    <div class="row" ng-if="res.reports.length">
+        <div class='col-lg-12 col-md-12'>
+            <div class="panel panel-default padded">
+                <div class="panel-heading">
+                    Reports (Last {{ res.trendDataPoints }} Runs)
+                </div>
+                
+                <div class='panel-body'>
+                    <table class='table'>
+                        <thead>
+                            <th>#</th>
+                            <th>Test suite</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th style='width: 120px;'>Testcases</th>
+                            <th style='width: 120px;'>Steps</th>
+                            <th ng-if='hasBDD'>Detail</th>
+                            <!-- <th></th> -->
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="report in res.reports track by $index" ng-if="$index < max">
+                                <td>{{ $index + 1 }}</td>
+                                <td><a href='#/reportDetails?id={{ report.id }}'>{{ report.fileName }}</a></td>
+                                <td><span class='ui label'><i class='fa fa-calendar icon'></i>{{ report.startTime | date:'MM-dd-yyyy HH:mm:ss' }}</span> </td>
+                                <td><span class='ui label'><i class='fa fa-calendar icon'></i>{{ report.endTime | date:'MM-dd-yyyy HH:mm:ss' }}</span>
+                                </td>
+                                <td>
+                                    <div class='progress' style="display: inline-flex; width: 100px;">
+                                        <div class='progress-bar progress-bar-success' style='display: {{ report.passParentLength>0 ? "block" : "none" }};width: {{ (report.passParentLength / (report.parentLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.passParentLength }}</span>
+                                        </div>
+                                        <div class='progress-bar progress-bar-info progress-bar-striped' style='display: {{ (report.parentLength-report.passParentLength-report.failParentLength-report.errorParentLength)>0 ? "block" : "none" }}; width: {{ ((report.warningParentLength + report.skipParentLength + report.unknownParentLength) / (report.parentLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.warningParentLength + report.skipParentLength + report.unknownParentLength }}</span>
+                                        </div>
+                                        <div class='progress-bar progress-bar-danger' style='display: {{ (report.failParentLength+report.errorParentLength)>0 ? "block" : "none"}}; width: {{ ((report.failParentLength+report.errorParentLength) / (report.parentLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.failParentLength+report.errorParentLength }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class='progress' style="display: inline-flex; width: 100px;">
+                                        <div class='progress-bar progress-bar-success' style='width: {{ ((report.passChildLength) / (report.childLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.passChildLength }}</span>
+                                        </div>
+                                        <div class='progress-bar progress-bar-info progress-bar-striped' style='display: {{ (report.warningChildLength + report.skipChildLength + report.unknownChildLength + report.infoChildLength)>0 ? "block" : "none" }}; width: {{ ((report.warningChildLength + report.skipChildLength + report.unknownChildLength + report.infoChildLength) / (report.childLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.warningChildLength + report.skipChildLength + report.unknownChildLength + report.infoChildLength }}</span>
+                                        </div>
+                                        <div class='progress-bar progress-bar-danger' style='display: {{ (report.failParentLength+report.errorChildLength)>0 ? "block" : "none"}}; width: {{ ((report.failChildLength+report.errorChildLength) / (report.childLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.failChildLength+report.errorChildLength }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td ng-if='hasBDD && report.grandChildLength > 0'>
+                                    <div class='progress' style="display: inline-flex; width: 100px;">
+                                        <div class='progress-bar progress-bar-success' style='width: {{ (report.passGrandChildLength / (report.grandChildLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.passGrandChildLength }}</span>
+                                        </div>
+                                        <div class='progress-bar progress-bar-info progress-bar-striped' style='width: {{ ((report.errorGrandChildLength + report.warningGrandChildLength + report.skipGrandChildLength + report.unknownGrandChildLength + report.infoGrandChildLength) / (report.grandChildLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.errorGrandChildLength + report.warningGrandChildLength + report.skipGrandChildLength + report.unknownGrandChildLength + report.infoGrandChildLength }}</span>
+                                        </div>
+                                        <div class='progress-bar progress-bar-danger' style='display: {{report.failParentLength>0 ? "block" : "none"}}; width: {{ ((report.failGrandChildLength + report.fatalGrandChildLength) / (report.grandChildLength)) * 100 }}%'>
+                                            <span class='sr-only'>{{ report.failGrandChildLength + report.fatalGrandChildLength }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td ng-if='hasBDD && report.grandChildLength === 0' style='text-align:center;'>N/A</td>
+                                <td><a href='#/reportDetails?id={{ report.id }}'><i class='fa fa-external-link'></i></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- <div class="" style="padding: 0px; background-color: #fff; border-top: 1px solid transparent; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px;">
+                    <ul uib-pagination total-items="bigTotalItems" ng-model="bigCurrentPage" max-size="maxSize" class="pagination-sm" boundary-links="true" force-ellipses="true" ></ul>
+                </div> -->
+            </div>
+        </div>
+
+        <div class='col-lg-4 col-md-5 hidden'>
+            <button class="btn btn-primary" ng-disabled="currentPage == 0" ng-click="currentPage = currentPage - 1">
+                Previous
+            </button>
+            <button class="btn btn-primary" ng-disabled="currentPage >= response.tests.length/pageSize - 1" ng-click="currentPage = currentPage + 1">
+                Next
+            </button>
+            <span class="label">showing page {{ currentPage + 1 }} of {{ getNumberOfPages(response.tests.length) }}</span>
+        </div>
+
+        <div class='col-lg-4 col-md-5 hidden' ng-controller='TestAnalysisController'>
+            <div class='panel panel-default padded inverted'>
+                <div class='panel-heading'>
+                    Analysis (Last 5 Runs)
+                </div>
+                
+                <div class='panel-body'>
+                    <div class='chart-box'>
+                        <canvas id='dashboard-test-analysis' class='chart chart-doughnut' chart-data="data" chart-labels="labels" chart-legend="true" chart-options="options" chart-colours="colors"></canvas>
+                    </div>
+                </div>
+                
+                <div class='ui segment-footer'>
+                    <div class='text-small'><strong>{{ pass + fail + fatal + error + warning + skip + unknown }}</strong> tests, <strong>{{ pass }}</strong> passed</div>
+                    <div class='text-small'><strong>{{ fail + fatal }}</strong> tests failed, <strong>{{ error + warning + skip + unknown}}</strong> others</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="row" ng-if="res.reports.length">
+        <div class="col-md-4">
+            <div class='panel panel-default padded'>
+                <div class='panel-heading'>
+                    Top Passed
+                </div>
+                
+                <div class='panel-body'>
+                    <table class='table'>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="test in res.trends.topPassed track by $index" ng-if="$index < 10">
+                                <td><a href='#/search?regex=exact&name={{ test._id.name }}'>{{ test._id.name }}</a></td>
+                                <td>{{ test.count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class='panel panel-default padded'>
+                <div class='panel-heading'>
+                    Top Failed
+                </div>
+                
+                <div class='panel-body'>
+                    <table class='table'>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="test in res.trends.topFailed track by $index" ng-if="$index < 10">
+                                <td><a href='#/search?regex=exact&name={{ test._id.name }}'>{{ test._id.name }}</a></td>
+                                <td>{{ test.count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 hidden">
+            <div class='panel panel-default padded'>
+                <div class='panel-heading'>
+                    Categories
+                </div>
+                
+                <div class='panel-body'>
+                    <table class='table'>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="category in res.categories">
+                                <td>{{ category }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
