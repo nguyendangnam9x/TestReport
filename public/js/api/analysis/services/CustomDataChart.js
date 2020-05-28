@@ -23,7 +23,7 @@ angular.module('ExtentX').
                 var unknownChildLength = 0;
 
                 if (data != null && data.length > 0) {
-                    for (var i = 0; i < data.length - 1; i++) {
+                    for (var i = 0; i <= data.length - 1; i++) {
                         var startTime = "";
                         if (data[i].startTime != null) {
                             startTime = data[i].startTime.substring(0,10);
@@ -126,6 +126,56 @@ angular.module('ExtentX').
                         }
                         if (parseInt(data[i].unknownChildLength) > 0) {
                             unknownChildLength = data[i].unknownChildLength + unknownChildLength;
+                        }
+
+                        if (i == data.length - 1) {
+                            // Add new object
+                            var dataObj = new Object();
+                            dataObj.childLength = 0;
+                            dataObj.endTime = startTimeFlag;
+                            dataObj.fileName = "";
+                            dataObj.id = "";
+                            dataObj.project = "";
+                            dataObj.startTime = startTimeFlag;
+
+                            dataObj.passParentLength = passParentLength;
+                            dataObj.failParentLength = failParentLength;
+                            dataObj.fatalParentLength = fatalParentLength;
+                            dataObj.errorParentLength = errorParentLength;
+                            dataObj.warningParentLength = warningParentLength;
+                            dataObj.skipParentLength = skipParentLength;
+                            dataObj.unknownParentLength = unknownParentLength;
+
+                            dataObj.passChildLength = passChildLength;
+                            dataObj.failChildLength = failChildLength;
+                            dataObj.fatalChildLength = fatalChildLength;
+                            dataObj.errorChildLength = errorChildLength;
+                            dataObj.warningChildLength = warningChildLength;
+                            dataObj.skipChildLength = skipChildLength;
+                            dataObj.infoChildLength = infoChildLength;
+                            dataObj.unknownChildLength = unknownChildLength;
+
+                            result.push(dataObj);
+
+                            startTimeFlag = startTime;
+                            // Clear value
+                            passParentLength = 0;
+                            failParentLength = 0;
+                            fatalParentLength = 0;
+                            errorParentLength = 0;
+                            warningParentLength = 0;
+                            skipParentLength = 0;
+                            unknownParentLength = 0;
+
+                            passChildLength = 0;
+                            failChildLength = 0;
+                            fatalChildLength = 0;
+                            errorChildLength = 0;
+                            warningChildLength = 0;
+                            skipChildLength = 0;
+                            infoChildLength = 0;
+                            unknownChildLength = 0;
+
                         }
                     }
                 }

@@ -115,8 +115,8 @@ class Api extends REST_Controller
 
         //query all reports
         $data = array(
-//            'startDate' => $this->get('startdate'),
-//            'endDate' => $this->get('enddate'),
+            'startDate' => $this->get('startdate'),
+            'endDate' => $this->get('enddate'),
             'project' => $projectIds,
         );
         $reports = $this->report->getReports($data, ['key'=>'startTime', 'sortType' => 'desc']);

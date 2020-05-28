@@ -109,6 +109,13 @@ angular.module('ExtentX')
                             }
                         }
                     }
+
+                    $scope.$broadcast('MyAggregatesTest', {
+                        responseData: angular.copy(response)
+                    });
+                    $scope.$broadcast('MyAggregatesLog', {
+                        responseData: angular.copy(response)
+                    });
                 }).
                 error(function(response) {
                     console.log(response);
