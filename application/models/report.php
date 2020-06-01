@@ -32,7 +32,7 @@ class Report extends CI_Model
                 if ($key == 'startDate') {
                     $this->db->where('UNIX_TIMESTAMP(STR_TO_DATE(tests.startTime, "%Y-%m-%d")) >= ', substr($value, 0, 8) . "00");
                 } elseif ($key == 'endDate') {
-//                    $this->db->where('UNIX_TIMESTAMP(STR_TO_DATE(tests.startTime, "%Y-%m-%d")) <= ', substr($value, 0, 8) . "00");
+                    $this->db->where('UNIX_TIMESTAMP(STR_TO_DATE(tests.startTime, "%Y-%m-%d")) <= ', substr($value, 0, 8) . "00");
                 } else {
                     $this->db->where_in($key, $value);
                 }
