@@ -9,7 +9,7 @@ angular.module('ExtentX')
             $scope.endDatePicker = {opened: false};
             /* pagination */
             $scope.currentPage = 0;
-            $scope.pageSize = 20;
+            $scope.pageSize = 10;
             $scope.gap = 3;
 
             // aaaaaaaaaaaaaaaaaaa
@@ -68,16 +68,23 @@ angular.module('ExtentX')
             $scope.update = function (projectName) {
                 console.log(projectName);
                 window.alert(projectName);
-            }
+            };
 
             $scope.Reset = function (query) {
                 $scope.endDate = new Date();
                 $scope.startDate = new Date($scope.endDate.getFullYear(), $scope.endDate.getMonth(), $scope.endDate.getDate() - 7);
 
                 $scope.Aggregates();
-            }
+            };
 
             $scope.Aggregates = function (query) {
+                getAggregates();
+                getAggregates(); // Call function duplicate, needed
+            };
+
+            $scope.Aggregates();
+
+            function getAggregates() {
                 var req = {
                     method: 'GET',
                     url: '/aggregates',
@@ -118,7 +125,5 @@ angular.module('ExtentX')
                 }).error(function (response) {
                     console.log(response);
                 });
-            };
-
-            $scope.Aggregates();
+            }
         }]);

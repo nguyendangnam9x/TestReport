@@ -85,7 +85,8 @@
                             <!-- <th></th> -->
                         </thead>
                         <tbody>
-                            <tr ng-repeat="report in res.reports track by $index" ng-if="$index < max">
+<!--                            <tr ng-repeat="report in res.reports track by $index" ng-if="$index < max">-->
+                            <tr ng-repeat="report in res.reports | startFrom:currentPage*pageSize | limitTo:pageSize">
                                 <td>{{ $index + 1 }}</td>
                                 <td><a href='#/reportDetails?id={{ report.id }}'>{{ report.fileName }}</a></td>
                                 <td><span class='ui label'><i class='fa fa-calendar icon'></i>{{ report.startTime | date:'MM-dd-yyyy HH:mm:ss' }}</span> </td>
@@ -142,14 +143,14 @@
             </div>
         </div>
 
-        <div class='col-lg-4 col-md-5 hidden'>
+        <div class='col-lg-4 col-md-5' style="margin-bottom: 20px;">
             <button class="btn btn-primary" ng-disabled="currentPage == 0" ng-click="currentPage = currentPage - 1">
                 Previous
             </button>
-            <button class="btn btn-primary" ng-disabled="currentPage >= response.tests.length/pageSize - 1" ng-click="currentPage = currentPage + 1">
+            <button class="btn btn-primary" ng-disabled="currentPage >= res.reports.length/pageSize - 1" ng-click="currentPage = currentPage + 1">
                 Next
             </button>
-            <span class="label">showing page {{ currentPage + 1 }} of {{ getNumberOfPages(response.tests.length) }}</span>
+            <span class="label">showing page {{ currentPage + 1 }} of {{ getNumberOfPages(res.reports.length) }}</span>
         </div>
 
         <div class='col-lg-4 col-md-5 hidden' ng-controller='TestAnalysisController'>
